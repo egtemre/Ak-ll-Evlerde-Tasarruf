@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../config/env_config.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,8 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = _emailController.text;
       final password = _passwordController.text;
 
-      // Admin kontrolü
-      if (email == 'root' && password == 'admin123') {
+      // Admin kontrolü - Production'da environment variable kullanılmalı
+      if (email == EnvConfig.adminEmail &&
+          password == EnvConfig.adminPassword) {
         const adminName = 'Administrator';
         context.read<AppState>().login(email, adminName);
 
