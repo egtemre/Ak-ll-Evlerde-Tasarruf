@@ -20,8 +20,8 @@ class User {
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
       userId: map['user_id'],
-      name: map['name'],
-      email: map['email'],
+      name: map['name'] ?? '',
+      email: map['email'] ?? '',
     );
   }
 }

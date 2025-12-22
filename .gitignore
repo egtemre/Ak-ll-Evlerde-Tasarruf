@@ -42,3 +42,18 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase Configuration - SENSITIVE DATA
+# ⚠️ Bu dosyalar API key'leri içerir, GitHub'a yüklenmemeli
+lib/config/firebase_config.dart
+google-services.json
+GoogleService-Info.plist
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Windows reserved filenames
+con
+CON

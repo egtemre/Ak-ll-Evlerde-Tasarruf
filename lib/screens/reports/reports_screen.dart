@@ -5,8 +5,18 @@ import '../../providers/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/bottom_navigation.dart';
 
-class ReportsScreen extends StatelessWidget {
+class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
+
+  @override
+  State<ReportsScreen> createState() => _ReportsScreenState();
+}
+
+class _ReportsScreenState extends State<ReportsScreen> {
+  Future<void> _refreshData() async {
+    // Refresh data - in real app this would reload from database
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,67 +29,59 @@ class ReportsScreen extends StatelessWidget {
                 // Header
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.menu),
-                        style: IconButton.styleFrom(
-                          backgroundColor:
-                              AppTheme.primaryColor.withValues(alpha: 0.1),
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Enerji Raporları',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const Spacer(),
-                      const SizedBox(width: 48), // Balance the menu icon
-                    ],
+                  child: Center(
+                    child: Text(
+                      'Enerji Raporları',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
                   ),
                 ),
 
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Başlık
-                        Text(
-                          'Tüketim Raporları',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        const SizedBox(height: 24),
+                  child: RefreshIndicator(
+                    onRefresh: _refreshData,
+                    color: AppTheme.primaryColor,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Başlık
+                          Text(
+                            'Tüketim Raporları',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 24),
 
-                        // Zaman filtresi
-                        _buildTimeFilter(context, appState),
-                        const SizedBox(height: 24),
+                          // Zaman filtresi
+                          _buildTimeFilter(context, appState),
+                          const SizedBox(height: 24),
 
-                        // Genel istatistikler
-                        _buildStatsCards(context, appState),
-                        const SizedBox(height: 24),
+                          // Genel istatistikler
+                          _buildStatsCards(context, appState),
+                          const SizedBox(height: 24),
 
-                        // Detaylı grafik
-                        _buildDetailedChart(context, appState),
-                        const SizedBox(height: 24),
+                          // Detaylı grafik
+                          _buildDetailedChart(context, appState),
+                          const SizedBox(height: 24),
 
-                        // Aylık karşılaştırma
-                        _buildMonthlyComparison(context, appState),
-                        const SizedBox(height: 24),
+                          // Aylık karşılaştırma
+                          _buildMonthlyComparison(context, appState),
+                          const SizedBox(height: 24),
 
-                        // Cihaz bazlı tüketim
-                        _buildDeviceConsumption(context, appState),
-                        const SizedBox(height: 100), // Bottom navigation için boşluk
-                      ],
+                          // Cihaz bazlı tüketim
+                          _buildDeviceConsumption(context, appState),
+                          const SizedBox(
+                              height: 100), // Bottom navigation için boşluk
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -221,7 +223,7 @@ class ReportsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -258,16 +260,16 @@ class ReportsScreen extends StatelessWidget {
 
   Widget _buildDetailedChart(BuildContext context, AppState appState) {
     final energyData = appState.energyData;
-    
+
     if (energyData.isEmpty) {
       return const Center(
         child: Text('Veri bulunamadı'),
       );
     }
 
-    final maxValue = energyData
-            .map((e) => e.consumption)
-            .reduce((a, b) => a > b ? a : b) * 1.2;
+    final maxValue =
+        energyData.map((e) => e.consumption).reduce((a, b) => a > b ? a : b) *
+            1.2;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -276,7 +278,7 @@ class ReportsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -312,15 +314,22 @@ class ReportsScreen extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
+                      reservedSize: 40,
+                      interval: 4, // Her 4 saatte bir göster
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index >= 0 && index < energyData.length) {
-                          return Text(
-                            energyData[index].hour,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
+                        if (index >= 0 &&
+                            index < energyData.length &&
+                            index % 4 == 0) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              energyData[index].hour,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           );
                         }
@@ -331,13 +340,18 @@ class ReportsScreen extends StatelessWidget {
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 40,
+                      reservedSize: 45,
+                      interval: maxValue / 4,
                       getTitlesWidget: (value, meta) {
-                        return Text(
-                          '${value.toInt()}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Text(
+                            '${value.toInt()}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         );
                       },
@@ -361,7 +375,8 @@ class ReportsScreen extends StatelessWidget {
                 lineBarsData: [
                   LineChartBarData(
                     spots: energyData.asMap().entries.map((entry) {
-                      return FlSpot(entry.key.toDouble(), entry.value.consumption);
+                      return FlSpot(
+                          entry.key.toDouble(), entry.value.consumption);
                     }).toList(),
                     isCurved: true,
                     color: AppTheme.primaryColor,
@@ -370,7 +385,7 @@ class ReportsScreen extends StatelessWidget {
                     dotData: const FlDotData(show: true),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      color: AppTheme.primaryColor.withOpacity(0.1),
                     ),
                   ),
                 ],
@@ -383,12 +398,16 @@ class ReportsScreen extends StatelessWidget {
   }
 
   Widget _buildMonthlyComparison(BuildContext context, AppState appState) {
-    // Örnek aylık veriler
+    // Örnek aylık veriler (gerçek veri setine uygun - kWh cinsinden)
     final monthlyData = [
-      {'month': 'Ocak', 'consumption': 320.5, 'saving': 45.2},
-      {'month': 'Şubat', 'consumption': 298.3, 'saving': 52.8},
-      {'month': 'Mart', 'consumption': 315.7, 'saving': 48.5},
-      {'month': 'Nisan', 'consumption': 285.2, 'saving': 65.3},
+      {'month': 'Ocak', 'consumption': 1285.5, 'saving': 175.2}, // Kış - yüksek
+      {'month': 'Şubat', 'consumption': 1198.3, 'saving': 210.8}, // Kış
+      {'month': 'Mart', 'consumption': 1115.7, 'saving': 185.5}, // İlkbahar
+      {
+        'month': 'Nisan',
+        'consumption': 985.2,
+        'saving': 265.3
+      }, // İlkbahar - düşük
     ];
 
     return Container(
@@ -398,7 +417,7 @@ class ReportsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -421,7 +440,7 @@ class ReportsScreen extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        data['month'] as String,
+                        data['month'] as String? ?? '',
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                         ),
@@ -448,7 +467,7 @@ class ReportsScreen extends StatelessWidget {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                                  color: AppTheme.primaryColor.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -464,7 +483,8 @@ class ReportsScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           LinearProgressIndicator(
-                            value: (data['consumption'] as double) / 400,
+                            value: (data['consumption'] as double) /
+                                1500, // 1500 kWh maksimum
                             backgroundColor: Colors.grey[200],
                             valueColor: const AlwaysStoppedAnimation<Color>(
                               AppTheme.primaryColor,
@@ -490,7 +510,7 @@ class ReportsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -514,7 +534,7 @@ class ReportsScreen extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        color: AppTheme.primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -536,7 +556,8 @@ class ReportsScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           LinearProgressIndicator(
-                            value: device.consumption / 5.0,
+                            value: device.consumption /
+                                15.0, // 15 kWh maksimum (klima)
                             backgroundColor: Colors.grey[200],
                             valueColor: AlwaysStoppedAnimation<Color>(
                               device.isOn
@@ -565,4 +586,3 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 }
-

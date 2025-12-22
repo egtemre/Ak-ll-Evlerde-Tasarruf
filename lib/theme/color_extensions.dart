@@ -7,7 +7,7 @@ extension ColorExtensions on Color {
     int? green,
     int? blue,
   }) {
-    // Flutter'ın yeni Color API'sini kullan - Color.value deprecated, component accessors kullan
+    // Flutter 3.24.5 için eski Color API
     final a = alpha ?? this.alpha;
     final r = red ?? this.red;
     final g = green ?? this.green;

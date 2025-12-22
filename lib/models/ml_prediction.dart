@@ -1,10 +1,12 @@
 class MLPrediction {
   final double prediction;
   final List<double>? proba;
+  final DateTime? timestamp;
 
   MLPrediction({
     required this.prediction,
     this.proba,
+    this.timestamp,
   });
 
   factory MLPrediction.fromJson(Map<String, dynamic> json) {
@@ -15,6 +17,8 @@ class MLPrediction {
               (json['proba'] as List).map((x) => (x as num).toDouble()),
             )
           : null,
+      timestamp:
+          json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
     );
   }
 
@@ -22,6 +26,7 @@ class MLPrediction {
     return {
       'prediction': prediction,
       'proba': proba,
+      'timestamp': timestamp?.toIso8601String(),
     };
   }
 }
@@ -56,22 +61,28 @@ class ModelMeta {
   final int? nFeatures;
   final List<String>? featureOrder;
   final int? nEstimators;
+  final String version;
+  final String lastTrainedDate;
 
   ModelMeta({
     required this.modelType,
     this.nFeatures,
     this.featureOrder,
     this.nEstimators,
+    this.version = '1.0.0',
+    this.lastTrainedDate = '2024-01-01',
   });
 
   factory ModelMeta.fromJson(Map<String, dynamic> json) {
     return ModelMeta(
-      modelType: json['model_type'] as String,
+      modelType: json['model_type'] as String? ?? 'unknown',
       nFeatures: json['n_features'] as int?,
       featureOrder: json['feature_order'] != null
           ? List<String>.from(json['feature_order'] as List)
           : null,
       nEstimators: json['n_estimators'] as int?,
+      version: json['version'] as String? ?? '1.0.0',
+      lastTrainedDate: json['last_trained_date'] as String? ?? '2024-01-01',
     );
   }
 }

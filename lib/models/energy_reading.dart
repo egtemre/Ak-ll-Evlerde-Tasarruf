@@ -36,9 +36,10 @@ class EnergyReading {
   static EnergyReading fromMap(Map<String, dynamic> map) {
     return EnergyReading(
       id: map['id'] as int?,
-      buildingId: map['building_id'] as int,
-      timestamp: map['timestamp'] as String,
-      totalKwh: map['total_kwh'] as double,
+      buildingId: map['building_id'] as int? ?? 0,
+      timestamp:
+          map['timestamp'] as String? ?? DateTime.now().toIso8601String(),
+      totalKwh: map['total_kwh'] as double? ?? 0.0,
       subM3Hvac: map['sub_m3_hvac'] as double?,
       outdoorTemp: map['outdoor_temp'] as double?,
       compYesterdayPct: map['comp_yesterday_pct'] as double?,

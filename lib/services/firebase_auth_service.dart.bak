@@ -1,0 +1,159 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
+
+/// Firebase Authentication Servisi
+/// Google Sign-In ve email/password authentication için
+class FirebaseAuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn? _googleSignIn =
+      kIsWeb || Platform.isAndroid || Platform.isIOS
+          ? GoogleSignIn(scopes: ['email', 'profile'])
+          : null;
+
+  // Mevcut kullanıcı stream'i
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  // Mevcut kullanıcı
+  User? get currentUser => _auth.currentUser;
+
+  /// Google ile giriş yap
+  /// Returns: User nesnesi veya null (başarısız olursa)
+  Future<User?> signInWithGoogle() async {
+    try {
+      // Desktop (Windows/macOS/Linux) için web-based popup flow
+      if (!kIsWeb &&
+          (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+
+        // Firebase popup kullanarak Google girişi
+        final UserCredential userCredential =
+            await _auth.signInWithPopup(googleProvider);
+
+        debugPrint('Google sign-in successful: ${userCredential.user?.email}');
+        return userCredential.user;
+      }
+
+      // Mobile ve Web için normal Google Sign-In flow
+      if (_googleSignIn == null) {
+        throw Exception('Google Sign-In not supported on this platform');
+      }
+
+      // Google Sign-In flow başlat
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // Kullanıcı girişi iptal etti
+        debugPrint('Google sign-in cancelled by user');
+        return null;
+      }
+
+      // Google authentication bilgilerini al
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Firebase credential oluştur
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Firebase'e giriş yap
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+
+      debugPrint('Google sign-in successful: ${userCredential.user?.email}');
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Firebase Auth error: ${e.code} - ${e.message}');
+      rethrow;
+    } catch (e) {
+      debugPrint('Google sign-in error: $e');
+      rethrow;
+    }
+  }
+
+  /// Email ve şifre ile giriş yap
+  Future<User?> signInWithEmailPassword(String email, String password) async {
+    try {
+      final UserCredential userCredential =
+          await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Email sign-in error: ${e.code} - ${e.message}');
+      rethrow;
+    }
+  }
+
+  /// Email ve şifre ile kayıt ol
+  Future<User?> signUpWithEmailPassword(String email, String password) async {
+    try {
+      final UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Email sign-up error: ${e.code} - ${e.message}');
+      rethrow;
+    }
+  }
+
+  /// Çıkış yap
+  Future<void> signOut() async {
+    try {
+      // Google'dan çık (mobile/web için)
+      if (_googleSignIn != null && await _googleSignIn.isSignedIn()) {
+        await _googleSignIn.signOut();
+      }
+      // Firebase'den çık
+      await _auth.signOut();
+      debugPrint('Sign-out successful');
+    } catch (e) {
+      debugPrint('Sign-out error: $e');
+      rethrow;
+    }
+  }
+
+  /// Şifre sıfırlama e-postası gönder
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      debugPrint('Password reset email sent to: $email');
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Password reset error: ${e.code} - ${e.message}');
+      rethrow;
+    }
+  }
+
+  /// Firebase Auth error mesajlarını kullanıcı dostu hale getir
+  String getErrorMessage(String errorCode) {
+    switch (errorCode) {
+      case 'user-not-found':
+        return 'Bu e-posta ile kayıtlı kullanıcı bulunamadı.';
+      case 'wrong-password':
+        return 'Hatalı şifre.';
+      case 'email-already-in-use':
+        return 'Bu e-posta adresi zaten kullanımda.';
+      case 'invalid-email':
+        return 'Geçersiz e-posta adresi.';
+      case 'weak-password':
+        return 'Şifre çok zayıf. En az 6 karakter olmalı.';
+      case 'user-disabled':
+        return 'Bu hesap devre dışı bırakılmış.';
+      case 'too-many-requests':
+        return 'Çok fazla deneme. Lütfen daha sonra tekrar deneyin.';
+      case 'network-request-failed':
+        return 'İnternet bağlantısı hatası.';
+      case 'account-exists-with-different-credential':
+        return 'Bu e-posta farklı bir giriş yöntemi ile kayıtlı.';
+      default:
+        return 'Bir hata oluştu. Lütfen tekrar deneyin.';
+    }
+  }
+}

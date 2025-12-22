@@ -3,14 +3,36 @@ import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/bottom_navigation.dart';
+import '../../widgets/schedule_dialog.dart';
+import '../../widgets/hourly_weather_dialog.dart';
+import '../../widgets/add_device_dialog.dart';
+import '../../services/weather_service.dart';
+import '../../utils/snackbar_helper.dart';
 
-class DevicesScreen extends StatelessWidget {
+class DevicesScreen extends StatefulWidget {
   const DevicesScreen({super.key});
+
+  @override
+  State<DevicesScreen> createState() => _DevicesScreenState();
+}
+
+class _DevicesScreenState extends State<DevicesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Hava durumu verilerini yükle
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = Provider.of<AppState>(context, listen: false);
+      appState.loadWeatherData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
+        final loc = appState.loc;
+
         return Scaffold(
           body: SafeArea(
             child: Column(
@@ -18,25 +40,13 @@ class DevicesScreen extends StatelessWidget {
                 // Header
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.arrow_back_ios_new),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Cihazlarım',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.add_circle_outline),
-                      ),
-                    ],
+                  child: Center(
+                    child: Text(
+                      loc.myDevices,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
                   ),
                 ),
 
@@ -46,7 +56,7 @@ class DevicesScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         // Hava durumu kartı
-                        _buildWeatherCard(),
+                        _buildWeatherCard(appState),
                         const SizedBox(height: 24),
 
                         // Cihaz listesi
@@ -65,90 +75,186 @@ class DevicesScreen extends StatelessWidget {
               ],
             ),
           ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => const AddDeviceDialog(),
+              );
+            },
+            backgroundColor: AppTheme.primaryColor,
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
           bottomNavigationBar: const CustomBottomNavigation(),
         );
       },
     );
   }
 
-  Widget _buildWeatherCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+  Widget _buildWeatherCard(AppState appState) {
+    final loc = appState.loc;
+    final weather = appState.currentWeather;
+    final isLoading = appState.isLoadingWeather;
+
+    if (isLoading || weather == null) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: () {
+        if (appState.hourlyWeather.isNotEmpty) {
+          showDialog(
+            context: context,
+            builder: (context) => HourlyWeatherDialog(
+              hourlyWeather: appState.hourlyWeather,
+            ),
+          );
+        }
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.primaryColor,
+              AppTheme.primaryColor.withOpacity(0.7),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Sol taraf - hava durumu bilgisi
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.yellow[100],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.wb_sunny,
-                  color: Colors.orange,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Güneşli',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryColor.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Sol taraf - hava durumu bilgisi
+            Row(
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Center(
+                    child: Text(
+                      WeatherService.getWeatherIcon(weather.icon),
+                      style: const TextStyle(fontSize: 36),
                     ),
                   ),
-                  Text(
-                    'İstanbul, Türkiye',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      WeatherService.getTurkishDescription(weather.description),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          color: Colors.white70,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          weather.city,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            const Spacer(),
+
+            // Sağ taraf - sıcaklık
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${weather.temperature.toStringAsFixed(1)}°C',
+                  style: const TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                ],
-              ),
-            ],
-          ),
-
-          const Spacer(),
-
-          // Sağ taraf - sıcaklık
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Text(
-                '25°C',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
                 ),
-              ),
-              Text(
-                'H:28° L:18°',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
+                const SizedBox(height: 4),
+                Text(
+                  'Y:${weather.tempMax.toInt()}° D:${weather.tempMin.toInt()}°',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                const SizedBox(height: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.touch_app,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        loc.hourly,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -162,7 +268,7 @@ class DevicesScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -180,7 +286,7 @@ class DevicesScreen extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      color: AppTheme.primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -220,8 +326,12 @@ class DevicesScreen extends StatelessWidget {
                 value: device.isOn,
                 onChanged: (value) {
                   appState.toggleDevice(device.id);
+                  SnackBarHelper.showSuccess(
+                    context,
+                    '${device.name} ${value ? 'açıldı' : 'kapatıldı'}',
+                  );
                 },
-                activeThumbColor: AppTheme.primaryColor,
+                activeColor: AppTheme.primaryColor,
                 inactiveThumbColor: Colors.grey[400],
                 inactiveTrackColor: Colors.grey[300],
               ),
@@ -275,7 +385,11 @@ class DevicesScreen extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: () {
-                        // Zamanlama ayarları
+                        // Zamanlama dialog'unu aç
+                        showDialog(
+                          context: context,
+                          builder: (context) => ScheduleDialog(device: device),
+                        );
                       },
                       child: Row(
                         children: [

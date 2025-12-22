@@ -42,14 +42,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _googleRegister() {
     // Simulate Google registration
-    context.read<AppState>().login('yeni.kullanici@gmail.com', 'Yeni Kullanıcı');
+    context
+        .read<AppState>()
+        .login('yeni.kullanici@gmail.com', 'Yeni Kullanıcı');
     Navigator.pushReplacementNamed(context, '/dashboard');
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -79,8 +81,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: InputDecoration(
                           hintText: 'E-posta',
                           filled: true,
-                          fillColor: isDark 
-                              ? Colors.grey[800]?.withValues(alpha: 0.5)
+                          fillColor: isDark
+                              ? Colors.grey[800]?.withOpacity( 0.5)
                               : Colors.grey[100],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -98,15 +100,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      
+
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: 'Şifre',
                           filled: true,
-                          fillColor: isDark 
-                              ? Colors.grey[800]?.withValues(alpha: 0.5)
+                          fillColor: isDark
+                              ? Colors.grey[800]?.withOpacity( 0.5)
                               : Colors.grey[100],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -124,15 +126,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      
+
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: 'Şifreyi tekrar girin',
                           filled: true,
-                          fillColor: isDark 
-                              ? Colors.grey[800]?.withValues(alpha: 0.5)
+                          fillColor: isDark
+                              ? Colors.grey[800]?.withOpacity( 0.5)
                               : Colors.grey[100],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -150,7 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Koşulları kabul et
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +175,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: RichText(
                                 text: TextSpan(
                                   style: TextStyle(
-                                    color: isDark ? Colors.grey[300] : Colors.grey[600],
+                                    color: isDark
+                                        ? Colors.grey[300]
+                                        : Colors.grey[600],
                                     fontSize: 14,
                                   ),
                                   children: const [
@@ -201,14 +205,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // Kayıt ol butonu
                       ElevatedButton(
                         onPressed: _register,
                         child: const Text('Kayıt Ol'),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Veya ayırıcı
                       Row(
                         children: [
@@ -235,14 +239,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Google kayıt butonu
                       OutlinedButton(
                         onPressed: _googleRegister,
                         style: OutlinedButton.styleFrom(
                           minimumSize: const Size(double.infinity, 56),
                           side: BorderSide(
-                            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                            color:
+                                isDark ? Colors.grey[700]! : Colors.grey[300]!,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -264,7 +269,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Giriş yap linki
                 Padding(
                   padding: const EdgeInsets.only(bottom: 32),

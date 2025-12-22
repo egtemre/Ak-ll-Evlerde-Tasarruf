@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
+import '../providers/app_state.dart';
 
 class CustomBottomNavigation extends StatelessWidget {
   const CustomBottomNavigation({super.key});
@@ -7,7 +9,9 @@ class CustomBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
-    
+    final appState = Provider.of<AppState>(context);
+    final loc = appState.loc;
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -27,35 +31,35 @@ class CustomBottomNavigation extends StatelessWidget {
               _buildNavItem(
                 context,
                 icon: Icons.home,
-                label: 'Anasayfa',
+                label: loc.dashboard,
                 route: '/dashboard',
                 isActive: currentRoute == '/dashboard',
               ),
               _buildNavItem(
                 context,
                 icon: Icons.devices,
-                label: 'Cihazlar',
+                label: loc.devices,
                 route: '/devices',
                 isActive: currentRoute == '/devices',
               ),
               _buildNavItem(
                 context,
                 icon: Icons.bar_chart,
-                label: 'Raporlar',
+                label: appState.languageCode == 'tr' ? 'Raporlar' : 'Reports',
                 route: '/reports',
                 isActive: currentRoute == '/reports',
               ),
               _buildNavItem(
                 context,
                 icon: Icons.lightbulb,
-                label: 'Öneriler',
+                label: loc.suggestions,
                 route: '/suggestions',
                 isActive: currentRoute == '/suggestions',
               ),
               _buildNavItem(
                 context,
                 icon: Icons.settings,
-                label: 'Ayarlar',
+                label: loc.settings,
                 route: '/settings',
                 isActive: currentRoute == '/settings',
               ),

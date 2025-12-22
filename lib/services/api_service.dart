@@ -6,13 +6,17 @@ import '../models/ml_prediction.dart';
 
 class ApiService {
   // ML Model API base URL
-  // Android emülatör için: 10.0.2.2:8000
-  // iOS simülatör için: localhost:8000
-  // Gerçek cihaz için: Bilgisayarınızın IP adresi (örn: 192.168.1.100:8000)
+  // Android emülatör için: 10.0.2.2:8001
+  // iOS simülatör için: localhost:8001
+  // Gerçek cihaz için: Bilgisayarınızın IP adresi (örn: 192.168.1.100:8001)
   // Production için: Gerçek sunucu URL'i
-  static const String _baseUrl = 'http://10.0.2.2:8000'; // Android emülatör için
-  // static const String _baseUrl = 'http://localhost:8000'; // iOS simülatör için
-  // static const String _baseUrl = 'http://192.168.1.100:8000'; // Gerçek cihaz için (IP'yi değiştirin)
+  static const String _baseUrl =
+      'http://10.0.2.2:8001'; // Android emülatör için
+  // static const String _baseUrl = 'http://localhost:8001'; // iOS simülatör için
+  // static const String _baseUrl = 'http://192.168.1.100:8001'; // Gerçek cihaz için (IP'yi değiştirin)
+
+  // Timeout süresi (30 saniye)
+  static const Duration _timeout = Duration(seconds: 30);
 
   // Model meta bilgilerini getir
   Future<ModelMeta?> getModelMeta() async {
@@ -20,13 +24,14 @@ class ApiService {
       final response = await http.get(
         Uri.parse('$_baseUrl/meta'),
         headers: {'Content-Type': 'application/json'},
-      );
+      ).timeout(_timeout);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return ModelMeta.fromJson(data);
       } else {
-        debugPrint('Failed to get model meta. Status code: ${response.statusCode}');
+        debugPrint(
+            'Failed to get model meta. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -38,17 +43,20 @@ class ApiService {
   // Tek tahmin yap
   Future<MLPrediction?> predict(FeatureVector features) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/predict'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'x': features.toJson()}),
-      );
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/predict'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({'x': features.toJson()}),
+          )
+          .timeout(_timeout);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return MLPrediction.fromJson(data);
       } else {
-        debugPrint('Failed to get prediction. Status code: ${response.statusCode}');
+        debugPrint(
+            'Failed to get prediction. Status code: ${response.statusCode}');
         debugPrint('Response: ${response.body}');
         return null;
       }
@@ -61,19 +69,22 @@ class ApiService {
   // Çoklu tahmin yap
   Future<MLPredictionMany?> predictMany(List<FeatureVector> features) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/predict_many'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'rows': features.map((f) => f.toJson()).toList(),
-        }),
-      );
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/predict_many'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              'rows': features.map((f) => f.toJson()).toList(),
+            }),
+          )
+          .timeout(_timeout);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return MLPredictionMany.fromJson(data);
       } else {
-        debugPrint('Failed to get predictions. Status code: ${response.statusCode}');
+        debugPrint(
+            'Failed to get predictions. Status code: ${response.statusCode}');
         debugPrint('Response: ${response.body}');
         return null;
       }
@@ -99,14 +110,14 @@ class ApiService {
     required double subMetering3,
   }) {
     final now = DateTime.now();
-    
-    // DayOfWeek: Python dayofweek (0=Pazartesi, 6=Pazar) 
+
+    // DayOfWeek: Python dayofweek (0=Pazartesi, 6=Pazar)
     // Flutter weekday (1=Pazartesi, 7=Pazar) -> 1 çıkararak uyumlu hale getir
     final dayOfWeek = now.weekday - 1; // 0-6 arası
-    
+
     // IsWeekend: Python'da dayofweek >= 5 (Cumartesi=5, Pazar=6)
     final isWeekend = (dayOfWeek >= 5) ? 1 : 0;
-    
+
     // Mevsim hesaplama - ModelHepsi.txt'ye göre:
     // 12,1,2: 0 (Kış), 3,4,5: 1 (İlkbahar), 6,7,8: 2 (Yaz), else: 3 (Sonbahar)
     int season;
@@ -162,14 +173,16 @@ class ApiService {
       season: season,
       timeOfDay: timeOfDay,
       prevHourPower: prevHourPower,
-      prev2HourPower: prevHourPower * 0.95, // Tahmini (gerçek uygulamada shift(2) olacak)
+      prev2HourPower:
+          prevHourPower * 0.95, // Tahmini (gerçek uygulamada shift(2) olacak)
       prevDayPower: prevDayPower,
       rollingMean24h: rollingMean24h,
       rollingStd24h: rollingStd24h,
       temperature: temperature,
       humidity: humidity,
       tempCategory: tempCategory,
-      prevHourTemp: temperature * 0.98, // Tahmini (gerçek uygulamada shift(1) olacak)
+      prevHourTemp:
+          temperature * 0.98, // Tahmini (gerçek uygulamada shift(1) olacak)
       subMetering1: subMetering1,
       subMetering2: subMetering2,
       subMetering3: subMetering3,

@@ -11,6 +11,8 @@ class SuggestionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
+        final loc = appState.loc;
+
         return Scaffold(
           body: SafeArea(
             child: Column(
@@ -18,28 +20,16 @@ class SuggestionsScreen extends StatelessWidget {
                 // Header
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.arrow_back),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.grey[100],
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Tasarruf Önerileri',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Spacer(),
-                      const SizedBox(width: 48), // Balance the back button
-                    ],
+                  child: Center(
+                    child: Text(
+                      loc.savingSuggestions,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
                   ),
                 ),
-                
+
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -48,13 +38,16 @@ class SuggestionsScreen extends StatelessWidget {
                       children: [
                         // Başlık
                         Text(
-                          'Cihaz Bazlı Öneriler',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          loc.deviceBasedSuggestions,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         const SizedBox(height: 24),
-                        
+
                         // Öneri listesi
                         ...appState.suggestions.asMap().entries.map((entry) {
                           final index = entry.key;
@@ -62,15 +55,16 @@ class SuggestionsScreen extends StatelessWidget {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 16),
                             child: _buildSuggestionCard(
-                              context, 
-                              suggestion, 
-                              index, 
+                              context,
+                              suggestion,
+                              index,
                               appState,
                             ),
                           );
                         }),
-                        
-                        const SizedBox(height: 100), // Bottom navigation için boşluk
+
+                        const SizedBox(
+                            height: 100), // Bottom navigation için boşluk
                       ],
                     ),
                   ),
@@ -85,23 +79,31 @@ class SuggestionsScreen extends StatelessWidget {
   }
 
   Widget _buildSuggestionCard(
-    BuildContext context, 
-    SavingSuggestion suggestion, 
-    int index, 
+    BuildContext context,
+    SavingSuggestion suggestion,
+    int index,
     AppState appState,
   ) {
+    final loc = appState.loc;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: suggestion.isApplied
+            ? AppTheme.primaryColor.withOpacity( 0.03)
+            : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.grey[200]!,
-          width: 1,
+          color: suggestion.isApplied
+              ? AppTheme.primaryColor.withOpacity( 0.3)
+              : Colors.grey[200]!,
+          width: suggestion.isApplied ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: suggestion.isApplied
+                ? AppTheme.primaryColor.withOpacity( 0.1)
+                : Colors.black.withOpacity( 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -115,7 +117,7 @@ class SuggestionsScreen extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+              color: AppTheme.primaryColor.withOpacity( 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -125,7 +127,7 @@ class SuggestionsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          
+
           // Öneri içeriği
           Expanded(
             child: Column(
@@ -155,9 +157,10 @@ class SuggestionsScreen extends StatelessWidget {
                       fontSize: 14,
                     ),
                     children: [
-                      const TextSpan(text: 'Tahmini Tasarruf: '),
+                      TextSpan(text: '${loc.estimatedSaving}: '),
                       TextSpan(
-                        text: '₺${suggestion.monthlySaving.toStringAsFixed(0)}/ay',
+                        text:
+                            '₺${suggestion.monthlySaving.toStringAsFixed(0)}${loc.perMonth}',
                         style: const TextStyle(
                           color: AppTheme.primaryColor,
                           fontWeight: FontWeight.w600,
@@ -170,7 +173,7 @@ class SuggestionsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          
+
           // Durum butonu
           _buildActionButton(context, suggestion, index, appState),
         ],
@@ -178,74 +181,65 @@ class SuggestionsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, SavingSuggestion suggestion, int index, AppState appState) {
-    if (suggestion.isApplied) {
-      return Container(
+  Widget _buildActionButton(BuildContext context, SavingSuggestion suggestion,
+      int index, AppState appState) {
+    final loc = appState.loc;
+
+    return GestureDetector(
+      onTap: () {
+        appState.applySuggestion(index);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              suggestion.isApplied
+                  ? '${suggestion.deviceName} ${loc.suggestionRemoved}'
+                  : '${suggestion.deviceName} ${loc.suggestionApplied}',
+            ),
+            backgroundColor:
+                suggestion.isApplied ? Colors.orange : AppTheme.primaryColor,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppTheme.primaryColor.withValues(alpha: 0.1),
-          border: Border.all(color: AppTheme.primaryColor),
+          color: suggestion.isApplied
+              ? AppTheme.primaryColor.withOpacity( 0.1)
+              : Colors.white,
+          border: Border.all(
+            color: suggestion.isApplied
+                ? AppTheme.primaryColor
+                : Colors.grey[400]!,
+          ),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.check_circle,
-              color: AppTheme.primaryColor,
+              suggestion.isApplied
+                  ? Icons.check_circle
+                  : Icons.radio_button_unchecked,
+              color: suggestion.isApplied
+                  ? AppTheme.primaryColor
+                  : Colors.grey[500],
               size: 16,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
-              'Uygulandı',
+              suggestion.isApplied ? loc.applied : loc.apply,
               style: TextStyle(
-                color: AppTheme.primaryColor,
+                color: suggestion.isApplied
+                    ? AppTheme.primaryColor
+                    : Colors.grey[600],
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ],
         ),
-      );
-    } else {
-      return GestureDetector(
-        onTap: () {
-          appState.applySuggestion(index);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${suggestion.deviceName} önerisi uygulandı!'),
-              backgroundColor: AppTheme.primaryColor,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[400]!),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.radio_button_unchecked,
-                color: Colors.grey[500],
-                size: 16,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Uygula',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 }
