@@ -47,6 +47,21 @@ Aşağıdaki ekranlar, uygulamanın “bitmiş ürün” hissini ve ana akışı
 
 ### Tüm ekranlar (1–13)
 <details>
+
+## ⏱️ 1 Dakikalık Demo Akışı
+
+Bu akış, projeyi teknik olmayan birine bile 60 saniyede anlatmak için tasarlandı.
+
+1. **Login / Register**: Uygulamaya giriş yap.
+2. **Dashboard**: Anlık tüketimi ve günlük/haftalık filtreyi değiştirerek trendleri göster.
+3. **ML Tahmin**: Tahmin kartını/aksiyonunu tetikle, tahmin sonucunu ve mevcut değerle farkını göster.
+4. **Reports**: Haftalık/aylık raporlara geç, grafik ve karşılaştırmaları göster.
+5. **Suggestions**: Bir tasarruf önerisini aç, "uygula" akışını göster ve potansiyel tasarrufu kWh/TL olarak yorumla.
+
+> **Mülakat Notu:** Bu demo; **mobil UI**, **veri görselleştirme**, **ML servis entegrasyonu** ve **ürün düşüncesi** (tasarruf çıktısı) yetkinliklerini aynı anda gösterir.
+
+
+
 <summary>Görselleri genişlet</summary>
 
 | 01 | 02 | 03 |
