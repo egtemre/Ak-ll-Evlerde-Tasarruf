@@ -1,177 +1,172 @@
-# 🏠 Akıllı Evlerde Enerji Tasarrufu - Smart Home Energy Management
+# 🏠 Akıllı Evlerde Enerji Tasarrufu
 
-Akıllı evlerde enerji tüketimini izlemek, optimize etmek ve tasarruf önerileri sunmak için geliştirilmiş Flutter tabanlı mobil uygulama.
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev)
+[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org)
+[![API](https://img.shields.io/badge/API-REST-111827)](#-python-backend-ml-api)
+[![Platforms](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-0ea5e9)](#-platform-desteği)
 
-## 📱 Özellikler
-
-### Kullanıcı Özellikleri
-- 📊 **Gerçek Zamanlı Enerji İzleme**: Anlık enerji tüketimi takibi
-- 🤖 **ML Tahmin Sistemi**: Machine Learning ile gelecek tüketim tahmini
-- 💡 **Akıllı Cihaz Yönetimi**: Ev cihazlarını uzaktan kontrol ve zamanlama
-- 📈 **Detaylı Raporlar**: Günlük, haftalık, aylık tüketim grafikleri
-- 💰 **Tasarruf Önerileri**: Kişiselleştirilmiş enerji tasarrufu tavsiyeleri
-- 🌤️ **Hava Durumu Entegrasyonu**: Hava koşullarına göre enerji optimizasyonu
-- 📅 **Cihaz Zamanlama**: Otomatik açma/kapama programları
-
-### Admin Özellikleri
-- 👥 **Kullanıcı Yönetimi**: Kullanıcıları görüntüleme ve yönetme
-- 📊 **Sistem Analizi**: Genel sistem istatistikleri
-- ⚙️ **Sistem Ayarları**: Platform yapılandırması
-
-## 🛠️ Teknolojiler
-
-- **Framework**: Flutter 3.x
-- **Dil**: Dart
-- **Backend**: Python Flask API
-- **ML Model**: Random Forest (scikit-learn)
-- **Veritabanı**: SQLite (local), Firebase (cloud - opsiyonel)
-- **State Management**: Provider
-- **Grafikler**: FL Chart
-- **API**: RESTful
-
-## 📋 Gereksinimler
-
-- Flutter SDK (3.0+)
-- Dart SDK (3.0+)
-- Android Studio / VS Code
-- Python 3.8+ (Backend için)
-- Android 6.0+ / iOS 12.0+
-
-## 🚀 Kurulum
-
-### 1. Flutter Projesi
-
-```bash
-# Repository'yi klonlayın
-git clone https://github.com/egtemre/Ak-ll-Evlerde-Tasarruf.git
-cd flutter_application_1
-
-# Bağımlılıkları yükleyin
-flutter pub get
-
-# Uygulamayı çalıştırın
-flutter run
-```
-
-### 2. Python Backend (ML API)
-
-```bash
-cd server
-
-# Virtual environment oluşturun
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Bağımlılıkları yükleyin
-pip install -r requirements.txt
-
-# API'yi başlatın
-python app.py
-```
-
-API varsayılan olarak `http://localhost:8000` adresinde çalışacaktır.
-
-### 3. Firebase Yapılandırması (Opsiyonel)
-
-Firebase özelliklerini kullanmak istiyorsanız:
-
-1. [Firebase Console](https://console.firebase.google.com)'a gidin
-2. Yeni proje oluşturun
-3. `lib/config/firebase_config.example.dart` dosyasını kopyalayın:
-   ```bash
-   cp lib/config/firebase_config.example.dart lib/config/firebase_config.dart
-   ```
-4. `firebase_config.dart` içindeki değerleri kendi Firebase bilgilerinizle değiştirin
-
-⚠️ **ÖNEMLİ**: `firebase_config.dart` dosyası `.gitignore`'da olduğu için GitHub'a yüklenmez.
-
-## 📱 Uygulama Ekranları
-
-- **Splash & Onboarding**: İlk kullanım karşılama ekranları
-- **Login/Register**: Kullanıcı girişi ve kayıt
-- **Dashboard**: Ana enerji izleme paneli
-- **Devices**: Cihaz yönetimi ve kontrol
-- **Reports**: Detaylı tüketim raporları
-- **Analytics**: Gelişmiş analiz ve karşılaştırmalar
-- **Suggestions**: Kişiselleştirilmiş tasarruf önerileri
-- **Settings**: Uygulama ayarları (tema, dil, vb.)
-- **Admin Panel**: Sistem yönetimi
-
-## 🔐 Test Hesapları
-
-### Normal Kullanıcı
-```
-Email: herhangi bir email
-Şifre: herhangi bir şifre
-```
-
-### Admin Kullanıcı
-```
-Email: root
-Şifre: admin123
-```
-
-⚠️ **Güvenlik Notu**: Production'da admin bilgileri environment variable veya güvenli bir yöntemle saklanmalıdır.
-
-## 🎨 Özelleştirme
-
-### Tema
-`lib/theme/app_theme.dart` dosyasından renk ve tema ayarlarını değiştirebilirsiniz.
-
-### Dil Desteği
-Şu anda Türkçe ve İngilizce dil desteği mevcuttur. `lib/utils/app_localizations.dart` dosyasından yeni diller eklenebilir.
-
-## 📊 ML Model Entegrasyonu
-
-Uygulama, enerji tüketim tahminleri için Random Forest modelini kullanır:
-
-1. **Model Eğitimi**: `makine_öğrenmesi/` klasöründeki Python scriptleri
-2. **API Entegrasyonu**: `lib/services/api_service.dart`
-3. **Model Meta Bilgileri**: Model accuracy, feature importance vb.
-
-### API Endpoints
-```
-POST /predict          - Tek tahmin
-POST /predict_many     - Çoklu tahmin
-GET  /model_meta       - Model bilgileri
-GET  /health           - API durumu
-```
-
-## 📱 Platform Desteği
-
-- ✅ Android
-- ✅ iOS
-- ✅ Web
-- ✅ Windows
-- ✅ macOS
-- ✅ Linux
-
-## 🐛 Bilinen Sorunlar
-
-- Firebase Authentication şu anda devre dışı (google-services.json gerekli)
-- Hava durumu API'si için kendi API key'inizi eklemeniz gerekiyor
-
-## 🤝 Katkıda Bulunma
-
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'feat: Add amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Pull Request açın
-
-## 📄 Lisans
-
-Bu proje eğitim amaçlı geliştirilmiştir.
-
-## 👨‍💻 Geliştirici
-
-**Egemen Temre**
-- GitHub: [@egtemre](https://github.com/egtemre)
-
-## 📞 İletişim
-
-Sorularınız için issue açabilir veya Pull Request gönderebilirsiniz.
+> **TR:** Akıllı ev enerji verilerini izleyip analiz ederek **tasarruf fırsatları** sunan; ayrıca **ML tabanlı tüketim tahmini** yapabilen Flutter uygulaması.
+>
+> **EN:** A Flutter app that monitors and analyzes smart-home energy data to surface **saving opportunities**, with optional **ML-based consumption forecasting**.
 
 ---
 
-⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
+## Neden Bu Proje? (Herkes İçin)
+- **Gözle görülür içgörü:** Tüketimi anlık izleyin, trendleri görün, gereksiz harcamayı yakalayın.
+- **Akıllı öneriler:** Tasarruf önerileri ile kullanım alışkanlıklarını iyileştirin.
+- **Tahminleme (ML):** Geleceğe yönelik tüketim tahminiyle proaktif aksiyon alın.
+
+## Hızlı Tanıtım (İK için 10 saniyelik özet)
+**Bu projede:** Mobil uygulama (Flutter) + Backend API (Python) + ML model (Random Forest) + veri akışı + temel güvenlik pratikleri (secret/env) birlikte kullanıldı.
+
+---
+
+## 📸 Uygulama Görselleri
+Aşağıdaki ekranlar, uygulamanın “bitmiş ürün” hissini ve ana akışı gösterir.
+
+| Dashboard | Raporlar | Öneriler |
+|---|---|---|
+| ![Dashboard](flutter_01.png) | ![Reports](flutter_04.png) | ![Suggestions](flutter_09.png) |
+
+> Not: Repoda `flutter_01.png`–`flutter_13.png` arasında daha fazla ekran görüntüsü bulunur.
+
+### Tüm ekranlar (1–13)
+<details>
+<summary>Görselleri genişlet</summary>
+
+| 01 | 02 | 03 |
+|---|---|---|
+| ![flutter_01](flutter_01.png) | ![flutter_02](flutter_02.png) | ![flutter_03](flutter_03.png) |
+
+| 04 | 05 | 06 |
+|---|---|---|
+| ![flutter_04](flutter_04.png) | ![flutter_05](flutter_05.png) | ![flutter_06](flutter_06.png) |
+
+| 07 | 08 | 09 |
+|---|---|---|
+| ![flutter_07](flutter_07.png) | ![flutter_08](flutter_08.png) | ![flutter_09](flutter_09.png) |
+
+| 10 | 11 | 12 |
+|---|---|---|
+| ![flutter_10](flutter_10.png) | ![flutter_11](flutter_11.png) | ![flutter_12](flutter_12.png) |
+
+| 13 |
+|---|
+| ![flutter_13](flutter_13.png) |
+
+</details>
+
+---
+
+## ✨ Öne Çıkan Özellikler
+### Kullanıcı
+- 📊 **Gerçek Zamanlı Enerji İzleme** – Anlık tüketim takibi
+- 📈 **Detaylı Raporlar** – Günlük/haftalık/aylık grafikler
+- 💰 **Tasarruf Önerileri** – Kişiselleştirilebilir öneriler
+- 🤖 **ML Tahmin Sistemi** – Gelecek tüketim tahmini (backend API ile)
+- 🌤️ **Hava Durumu Entegrasyonu** – Koşullara göre optimizasyon (opsiyonel)
+- 📅 **Cihaz Zamanlama** – Otomatik açma/kapama programları
+
+### Admin
+- 👥 **Kullanıcı Yönetimi** – Kullanıcıları görüntüleme ve yönetme
+- 📊 **Sistem Analizi** – Genel sistem istatistikleri
+- ⚙️ **Sistem Ayarları** – Platform yapılandırması
+
+---
+
+## 🧩 Mimari (Basit Anlatım)
+1. **Flutter uygulaması** kullanıcı arayüzünü ve akışı sağlar.
+2. **Python API** (ML servisi) tahmin isteklerini alır ve yanıtlar.
+3. **Random Forest model** sensör/özellik vektöründen tüketim tahmini üretir.
+
+> Teknik detaylar için: **[ML_INTEGRATION.md](ML_INTEGRATION.md)**
+
+---
+
+## 🤖 Model (ML) – Herkesin Anlayacağı Dille
+- **Ne yapıyor?** Mevcut sensör/veri özelliklerine bakarak “yakın gelecek tüketim” için tahmin döndürür.
+- **Ne ile?** `Random Forest (scikit-learn)`
+- **Nasıl entegre?** Flutter → REST API → Model → Tahmin sonucu
+
+### API Endpoint’leri
+- `GET /meta` – Model meta bilgileri
+- `POST /predict` – Tek tahmin
+- `POST /predict_many` – Çoklu tahmin
+
+> Not: Doğruluk (accuracy/F1/MAE gibi) metrikleri proje olgunlaştıkça raporlanacak şekilde genişletilebilir.
+
+---
+
+## 🔐 Güvenlik (Güven Veren Kısım)
+Bu repo eğitim amaçlı olsa da temel güvenlik pratikleri düşünülmüştür:
+- API key / credential gibi hassas bilgiler **repoya yazılmamalı** (örn. `.env`, Firebase config).
+- Örnek yapılandırma için `.env.example` kullanılır.
+- Production’da kimlik doğrulama, rate-limit ve RBAC önerilir.
+
+Detay: **[SECURITY.md](SECURITY.md)**
+
+---
+
+## 🛠️ Teknolojiler
+- **Flutter 3.x / Dart**
+- **Python 3.8+** backend
+- **ML:** Random Forest (scikit-learn)
+- **DB:** SQLite (local), Firebase (opsiyonel)
+- **State management:** Provider
+- **Charts:** FL Chart
+
+---
+
+## 🚀 Kurulum
+
+### 1) Flutter Uygulaması
+```bash
+git clone https://github.com/egtemre/Ak-ll-Evlerde-Tasarruf.git
+cd Ak-ll-Evlerde-Tasarruf
+flutter pub get
+flutter run
+```
+
+### 2) Python Backend (ML API)
+```bash
+cd server
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+
+API varsayılan olarak `http://localhost:8000` adresinde çalışır.
+
+> Platforma göre API adresini `ML_INTEGRATION.md` içinde anlatıldığı şekilde ayarlayın (Android emülatör: `10.0.2.2`).
+
+---
+
+## ✅ Platform Desteği
+- Android
+- iOS
+- Web
+- Windows / macOS / Linux
+
+---
+
+## 📄 Dokümantasyon
+- ML entegrasyonu: **[ML_INTEGRATION.md](ML_INTEGRATION.md)**
+- Firebase kurulum: **[FIREBASE_SETUP.md](FIREBASE_SETUP.md)**, **[FIREBASE_MOBIL_KURULUM.md](FIREBASE_MOBIL_KURULUM.md)**
+- Güvenlik: **[SECURITY.md](SECURITY.md)**
+- Bitirme dokümanı: **[BİTİRME_PROJESİ_DOKÜMANI.md](BİTİRME_PROJESİ_DOKÜMANI.md)**
+
+---
+
+## 🤝 Katkıda Bulunma
+1. Fork
+2. Branch oluştur (`git checkout -b feature/amazing-feature`)
+3. Commit (`git commit -m "feat: ..."`)
+4. Push (`git push origin feature/amazing-feature`)
+5. PR aç
+
+---
+
+## 👨‍💻 Geliştirici
+**Egemen Temre** — GitHub: [@egtemre](https://github.com/egtemre)
