@@ -3,12 +3,26 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org)
+[![ML](https://img.shields.io/badge/ML-Random%20Forest-16a34a)](#-model-card)
+[![R2](https://img.shields.io/badge/Model%20R%C2%B2-0.96-0ea5e9)](#-model-card)
 [![API](https://img.shields.io/badge/API-REST-111827)](#-python-backend-ml-api)
 [![Platforms](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-0ea5e9)](#-platform-desteği)
 
+> **TR (Slogan):** Enerji tüketimini görünür kıl, tahmin et, optimize et — **daha düşük fatura, daha verimli ev**.
+>
 > **TR:** Akıllı ev enerji verilerini izleyip analiz ederek **tasarruf fırsatları** sunan; ayrıca **ML tabanlı tüketim tahmini** yapabilen Flutter uygulaması.
 >
 > **EN:** A Flutter app that monitors and analyzes smart-home energy data to surface **saving opportunities**, with optional **ML-based consumption forecasting**.
+
+---
+
+## ✨ Öne Çıkan Yetkinlikler (İK için)
+Bu repo, tek bir projede aşağıdaki yetkinlikleri gösterir:
+- **Mobil uygulama geliştirme:** Flutter / Dart, çoklu platform
+- **Veri & analitik:** grafikler, trend/karşılaştırma, (opsiyonel) anomali yaklaşımı
+- **Backend entegrasyonu:** REST API üzerinden ML tahmin servisi
+- **Makine öğrenmesi:** Random Forest Regressor, feature engineering, model meta endpoint’i
+- **Güvenlik farkındalığı:** secret/env yaklaşımı, yapılandırma örnekleri, güvenlik dokümanı
 
 ---
 
@@ -17,8 +31,8 @@
 - **Akıllı öneriler:** Tasarruf önerileri ile kullanım alışkanlıklarını iyileştirin.
 - **Tahminleme (ML):** Geleceğe yönelik tüketim tahminiyle proaktif aksiyon alın.
 
-## Hızlı Tanıtım (İK için 10 saniyelik özet)
-**Bu projede:** Mobil uygulama (Flutter) + Backend API (Python) + ML model (Random Forest) + veri akışı + temel güvenlik pratikleri (secret/env) birlikte kullanıldı.
+## Hızlı Tanıtım (10 saniyede)
+**Bu projede:** Mobil uygulama (Flutter) + Backend API (Python/FastAPI) + ML model (Random Forest) + veri akışı + temel güvenlik pratikleri (secret/env) birlikte kullanıldı.
 
 ---
 
@@ -59,7 +73,7 @@ Aşağıdaki ekranlar, uygulamanın “bitmiş ürün” hissini ve ana akışı
 
 ---
 
-## ✨ Öne Çıkan Özellikler
+## ✨ Özellikler
 ### Kullanıcı
 - 📊 **Gerçek Zamanlı Enerji İzleme** – Anlık tüketim takibi
 - 📈 **Detaylı Raporlar** – Günlük/haftalık/aylık grafikler
@@ -84,17 +98,30 @@ Aşağıdaki ekranlar, uygulamanın “bitmiş ürün” hissini ve ana akışı
 
 ---
 
-## 🤖 Model (ML) – Herkesin Anlayacağı Dille
-- **Ne yapıyor?** Mevcut sensör/veri özelliklerine bakarak “yakın gelecek tüketim” için tahmin döndürür.
-- **Ne ile?** `Random Forest (scikit-learn)`
-- **Nasıl entegre?** Flutter → REST API → Model → Tahmin sonucu
+## 🪪 Model Card
+Bu bölüm, “model var mı / ne kadar iyi / neyle eğitilmiş” sorularını tek yerde yanıtlar.
 
+- **Model tipi:** Random Forest Regressor
+- **Problem:** Enerji tüketimi tahmini (regresyon)
+- **Test performansı:** **R² = 0.96** *(test seti)*
+- **Feature sayısı:** 20
+- **Eğitim verisi:** `SmartHome_Energy_Weather_Combined.csv` (**8763 satır**)
+
+### Feature Grupları (Özet)
+- **Zaman:** `Hour`, `DayOfWeek`, `Month`, `IsWeekend`, `Season`, `TimeOfDay`
+- **Geçmiş tüketim:** `Prev_Hour_Power`, `Prev_2Hour_Power`, `Prev_Day_Power`, `Rolling_Mean_24h`, `Rolling_Std_24h`
+- **Çevresel:** `Temperature`, `Humidity`, `Temp_Category`, `Prev_Hour_Temp`
+- **Elektrik/sayaç:** `Sub_metering_1`, `Sub_metering_2`, `Sub_metering_3`, `Voltage`, `Global_intensity`
+
+> Kaynak: **[BİTİRME_PROJESİ_DOKÜMANI.md](BİTİRME_PROJESİ_DOKÜMANI.md)**
+
+---
+
+## 🤖 Python Backend (ML API)
 ### API Endpoint’leri
 - `GET /meta` – Model meta bilgileri
 - `POST /predict` – Tek tahmin
 - `POST /predict_many` – Çoklu tahmin
-
-> Not: Doğruluk (accuracy/F1/MAE gibi) metrikleri proje olgunlaştıkça raporlanacak şekilde genişletilebilir.
 
 ---
 
@@ -110,7 +137,7 @@ Detay: **[SECURITY.md](SECURITY.md)**
 
 ## 🛠️ Teknolojiler
 - **Flutter 3.x / Dart**
-- **Python 3.8+** backend
+- **Python 3.8+** backend (FastAPI/FastAPI uyumlu)
 - **ML:** Random Forest (scikit-learn)
 - **DB:** SQLite (local), Firebase (opsiyonel)
 - **State management:** Provider
